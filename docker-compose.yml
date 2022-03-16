@@ -1,0 +1,40 @@
+version: "3.7"
+
+services:
+  node-red:
+    image: nodered/node-red:latest
+    container_name: nodered-server
+    # environment:
+    #   - TZ=Europe/Amsterdam
+    # ports:
+    #   - "1880:1880"
+    expose:
+      - 1880
+    networks:
+      - node-red-net
+    volumes:
+      - node-red-data:/data
+
+  nginx:
+    image: "nginx:latest"
+    links:
+      - "node-red"
+    ports:
+      - "80:80"
+      - "443:443"
+    container_name: nodered-nginx
+    volumes:
+      - ./ssl:/etc/ssl
+      - ./nginx/conf.d/:/etc/nginx/conf.d
+      # - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - node-red-net
+    depends_on:
+      - node-red
+    restart: unless-stopped
+
+volumes:
+  node-red-data:
+
+networks:
+  node-red-net:
